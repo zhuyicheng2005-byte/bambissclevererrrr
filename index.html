@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语单词复习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            background: linear-gradient(135deg, #58cc02 0%, #89e219 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #58cc02;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #58cc02;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: #58cc02;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e5e5;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #58cc02 0%, #89e219 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .card {
+            background: #f7f7f7;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .question {
+            font-size: 80px;
+            font-weight: bold;
+            color: #1cb0f6;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .answer {
+            font-size: 40px;
+            color: #58cc02;
+            margin-top: 20px;
+            line-height: 1.3;
+        }
+
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-show {
+            background: #1cb0f6;
+            color: white;
+        }
+
+        .btn-show:hover {
+            background: #1899d6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(28, 176, 246, 0.3);
+        }
+
+        .btn-know {
+            background: #58cc02;
+            color: white;
+        }
+
+        .btn-know:hover {
+            background: #4caf00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 204, 2, 0.3);
+        }
+
+        .btn-dont-know {
+            background: #ff4b4b;
+            color: white;
+        }
+
+        .btn-dont-know:hover {
+            background: #e63946;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 75, 75, 0.3);
+        }
+
+        .btn-show:active, .btn-know:active, .btn-dont-know:active {
+            transform: translateY(0);
+        }
+
+        .review-buttons {
+            display: none;
+        }
+
+        .review-buttons.active {
+            display: flex;
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 32px;
+            color: #58cc02;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .completion-stats {
+            font-size: 18px;
+            color: #777;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: #58cc02;
+            color: white;
+            padding: 18px 50px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-restart:hover {
+            background: #4caf00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 204, 2, 0.3);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 16px;
+            margin-top: 10px;
+            min-height: 24px;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            color: #58cc02;
+        }
+
+        .feedback.incorrect {
+            color: #ff4b4b;
+        }
+
+        .keyboard-hint {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .mode-indicator {
+            text-align: center;
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>日语单词复习</h1>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('kanji-to-hiragana')">汉字→平假名</button>
+            <button class="mode-btn" onclick="setMode('hiragana-to-kanji')">平假名→汉字</button>
+            <button class="mode-btn" onclick="setMode('mixed')">混合模式</button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="stats-row">
+            <span id="currentCount">0 / 0</span>
+            <span id="reviewCount">待复习: 0</span>
+        </div>
+
+        <div id="reviewScreen">
+            <div class="mode-indicator" id="modeIndicator"></div>
+            <div class="card">
+                <div class="question" id="question">准备开始...</div>
+                <div class="answer hidden" id="answer">答案</div>
+            </div>
+
+            <div class="buttons" id="showButton">
+                <button class="btn-show" onclick="showAnswer()">显示答案</button>
+            </div>
+
+            <div class="buttons review-buttons" id="reviewButtons">
+                <button class="btn-dont-know" onclick="markDontKnow()">不记得</button>
+                <button class="btn-know" onclick="markKnow()">记得</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            <div class="keyboard-hint">空格键：显示答案 | 1：不记得 | 2：记得</div>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">复习完成！</div>
+            <div class="completion-stats" id="completionStats"></div>
+            <button class="btn-restart" onclick="restart()">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        let vocabulary = [
+            { kanji: 'ベース', hiragana: 'base' },
+            { kanji: 'ケース', hiragana: 'case' },
+            { kanji: 'クリスマス', hiragana: 'Christmas' },
+            { kanji: 'カツレツ', hiragana: 'cutlet' },
+            { kanji: 'エッセイ', hiragana: 'essay' },
+            { kanji: 'フランス', hiragana: 'France' },
+            { kanji: 'フルタイム', hiragana: 'Full time' },
+            { kanji: 'ハンバーグ', hiragana: 'Hamburg steakの略' },
+            { kanji: 'インターネット', hiragana: 'internet' },
+            { kanji: 'インタビュー', hiragana: 'interview' },
+            { kanji: 'イタリアン', hiragana: 'Italian' },
+            { kanji: 'イタリア', hiragana: 'Italy' },
+            { kanji: 'ミクルクレープ', hiragana: 'milk+crape' },
+            { kanji: 'ナポリ', hiragana: 'Napoli' },
+            { kanji: 'ナポリタン', hiragana: 'napolitain' },
+            { kanji: 'オムレツ', hiragana: 'omelette 英omelet' },
+            { kanji: 'オムライス', hiragana: 'omelette 英omelet＋英 rice' },
+            { kanji: 'オニオングラタン', hiragana: 'onion＋仏 gratin' },
+            { kanji: 'プレート', hiragana: 'plate' },
+            { kanji: 'ポイント', hiragana: 'point' },
+            { kanji: 'ポテトサラダ', hiragana: 'potato+salad' },
+            { kanji: 'リスク', hiragana: 'risk' },
+            { kanji: 'スケール', hiragana: 'scale' },
+            { kanji: 'センス', hiragana: 'sense' },
+            { kanji: 'シーツ', hiragana: 'sheet' },
+            { kanji: 'ショートケーキ', hiragana: 'shortcake' },
+            { kanji: 'サイズ', hiragana: 'size' },
+            { kanji: 'スキルアップ', hiragana: 'skill up' },
+            { kanji: 'スープ', hiragana: 'soup' },
+            { kanji: 'バリエーション', hiragana: 'variation' },
+            { kanji: 'ワーキングプア', hiragana: 'working poor' },
+            { kanji: '泡', hiragana: 'あわ' },
+            { kanji: '梅干し', hiragana: 'うめぼし' },
+            { kanji: 'エビフライ', hiragana: 'えび+fry' },
+            { kanji: '菓子', hiragana: 'おかし' },
+            { kanji: 'お子様ランチ', hiragana: 'おこさま+lunch' },
+            { kanji: '回路', hiragana: 'かいろ' },
+            { kanji: '家屋', hiragana: 'かおく' },
+            { kanji: '靴下', hiragana: 'くつした' },
+            { kanji: '首', hiragana: 'くび' },
+            { kanji: '口角', hiragana: 'こうかく' },
+            { kanji: '豪邸', hiragana: 'ごうてい' },
+            { kanji: '古典', hiragana: 'こてん' },
+            { kanji: '醤油', hiragana: 'しょうゆ' },
+            { kanji: '植物', hiragana: 'しょくぶつ' },
+            { kanji: '品物', hiragana: 'しなもの' },
+            { kanji: '商品券', hiragana: 'しょうひんけん' },
+            { kanji: '消耗品', hiragana: 'しょうもうひん' },
+            { kanji: '砂場', hiragana: 'すなば' },
+            { kanji: '地球', hiragana: 'ちきゅう' },
+            { kanji: '食べ物', hiragana: 'たべもの' },
+            { kanji: 'とんかつ', hiragana: 'とんかつ' },
+            { kanji: '脳', hiragana: 'のう' },
+            { kanji: '拍車', hiragana: 'はくしゃ' },
+            { kanji: '花言葉', hiragana: 'はなことば' },
+            { kanji: '刃物', hiragana: 'はもの' },
+            { kanji: '必需品', hiragana: 'ひつじゅひん' },
+            { kanji: 'ーさじ', hiragana: 'ひとさじ' },
+            { kanji: '瞳', hiragana: 'ひとみ' },
+            { kanji: '服装', hiragana: 'ふくそう' },
+            { kanji: '物体', hiragana: 'ぶったい' },
+            { kanji: '見栄', hiragana: 'みえ' },
+            { kanji: '味覚', hiragana: 'みかく' },
+            { kanji: '名産', hiragana: 'めいさん' },
+            { kanji: '洋菓子', hiragana: 'ようがし' },
+            { kanji: '和菓子', hiragana: 'わがし' },
+            { kanji: '我が家', hiragana: 'わがや' },
+            { kanji: '惑星', hiragana: 'わくせい' },
+            { kanji: '特産品', hiragana: 'とくさんひん' },
+            { kanji: '歳暮', hiragana: 'せいぽ' },
+            { kanji: '中元', hiragana: 'ちゅうげん' },
+            { kanji: '香典', hiragana: 'こうでん' },
+            { kanji: '一時', hiragana: 'いちじ' },
+            { kanji: '裏', hiragana: 'うら' },
+            { kanji: '表', hiragana: 'おもて' },
+            { kanji: '概念', hiragana: 'がいねん' },
+            { kanji: '観念', hiragana: 'がいねん' },
+            { kanji: '境界', hiragana: 'きょうかい' },
+            { kanji: '傾向', hiragana: 'けいこう' },
+            { kanji: '下旬', hiragana: 'げじゅん' },
+            { kanji: '月末', hiragana: 'げつまつ' },
+            { kanji: '原型', hiragana: 'げんけい' },
+            { kanji: '原稿', hiragana: 'げんこう' },
+            { kanji: '現状', hiragana: 'げんじょう' },
+            { kanji: '原則', hiragana: 'げんそく' },
+            { kanji: '高度', hiragana: 'こうど' },
+            { kanji: '小声', hiragana: 'こごえ' },
+            { kanji: '最小限', hiragana: 'さいしょうげん' },
+            { kanji: '最低限', hiragana: 'さいていげん' },
+            { kanji: '事実', hiragana: 'じじつ' },
+            { kanji: '実質', hiragana: 'じっしつ' },
+            { kanji: '時点', hiragana: 'じてん' },
+            { kanji: '状況', hiragana: 'じょうきょう' },
+            { kanji: '状態', hiragana: 'じょうたい' },
+            { kanji: '昭和', hiragana: 'しょうわ' },
+            { kanji: '少数', hiragana: 'しょうすう' },
+            { kanji: '上層', hiragana: 'じょうそう' },
+            { kanji: '数字', hiragana: 'すうじ' },
+            { kanji: '数人', hiragana: 'すうにん' },
+            { kanji: '筋', hiragana: 'すじ' },
+            { kanji: '早期', hiragana: 'そうき' },
+            { kanji: '相場', hiragana: 'そうば' },
+            { kanji: '外側', hiragana: 'そとがわ' },
+            { kanji: '外面', hiragana: 'そとづら' },
+            { kanji: '対象', hiragana: 'たいしょう' },
+            { kanji: '建前', hiragana: 'たてまえ' },
+            { kanji: '多様化', hiragana: 'たようか' },
+            { kanji: '中旬', hiragana: 'ちゅうじゅん' },
+            { kanji: '常々', hiragana: 'つねづね' },
+            { kanji: '当時', hiragana: 'とうじ' },
+            { kanji: '長年', hiragana: 'ながねん/ちょうねん' },
+            { kanji: '馴染み', hiragana: 'なじみ' },
+            { kanji: '日持ち·日保ち', hiragana: 'ひもち' },
+            { kanji: '品質', hiragana: 'ひんしつ' },
+            { kanji: '風習', hiragana: 'ふうしゅう' },
+            { kanji: '文型', hiragana: 'ぶんけい' },
+            { kanji: '弊害', hiragana: 'へいがい' },
+            { kanji: '法', hiragana: 'ほう' },
+            { kanji: '方向', hiragana: 'ほうこう' },
+            { kanji: '本心', hiragana: 'ほんしん' },
+            { kanji: '本能', hiragana: 'ほんのう' },
+            { kanji: '本来', hiragana: 'ほんらい' },
+            { kanji: '無意味', hiragana: 'むいみ' },
+            { kanji: '明治時代', hiragana: 'めいじじだい' },
+            { kanji: '幼児期', hiragana: 'ようじき' },
+            { kanji: '要素', hiragana: 'ようそ' },
+            { kanji: 'ヨソ', hiragana: 'よそ' },
+            { kanji: '利点', hiragana: 'りてん' },
+            { kanji: '量', hiragana: 'りょう' },
+            { kanji: '初め', hiragana: 'はじめ' },
+            { kanji: '場面', hiragana: 'ばめん' },
+            { kanji: '発祥地', hiragana: 'はっしょうち' },
+            { kanji: '都内', hiragana: 'とない' },
+            { kanji: '世間', hiragana: 'せけん' },
+            { kanji: '世の中', hiragana: 'よのなか' },
+            { kanji: '景気', hiragana: 'けいき' },
+            { kanji: '強弱', hiragana: 'きょうじゃく' },
+            { kanji: '上下', hiragana: 'じょうげ' },
+            { kanji: '良し悪し', hiragana: 'よしあし' },
+            { kanji: '理由', hiragana: 'りゆう' },
+            { kanji: '積み重ね', hiragana: 'つみかさね' },
+            { kanji: '使い分け', hiragana: 'つかいわけ' },
+            { kanji: '付き物', hiragana: 'つきもの' },
+            { kanji: '見よう見ま ね', hiragana: 'みようみまね' },
+            { kanji: '文明開化', hiragana: 'ぶんめいかいか' },
+            { kanji: '年上', hiragana: 'としうえ' },
+            { kanji: '嫁ぎ先', hiragana: 'とつぎさき' },
+            { kanji: '共働き', hiragana: 'ともばたらき' },
+            { kanji: '取引先', hiragana: 'とりひきさき' },
+            { kanji: '農家', hiragana: 'のうか' },
+            { kanji: '派遣社員', hiragana: 'はけんしゃいん' },
+            { kanji: '非常勤', hiragana: 'ひじょうきん' },
+            { kanji: '貧困層', hiragana: 'ひんこんそう' },
+            { kanji: '部署', hiragana: 'ぶしょ' },
+            { kanji: '保護者', hiragana: 'ほごしゃ' },
+            { kanji: '本人', hiragana: 'ほんにん' },
+            { kanji: '文部科学省', hiragana: 'もんぶかがくしょう' },
+            { kanji: '役所', hiragana: 'やくしょ' },
+            { kanji: '労働者', hiragana: 'ろいどうしゃ' },
+            { kanji: '他者', hiragana: 'たしゃ' },
+            { kanji: '階級', hiragana: 'かいきゅう' },
+            { kanji: '下位', hiragana: 'かい' },
+            { kanji: '働き口', hiragana: 'はたらきぐち' },
+            { kanji: '発表会', hiragana: 'はっぴょうかい' },
+            { kanji: '独り言', hiragana: 'ひとりごと' },
+            { kanji: '読み書き', hiragana: 'よみかき' },
+            { kanji: '農業', hiragana: 'のうぎょう' },
+            { kanji: '先延ばし', hiragana: 'さきのばし' },
+            { kanji: '切り替え', hiragana: 'きりかえ' },
+            { kanji: '愛情', hiragana: 'あいじょう' },
+            { kanji: '間柄', hiragana: 'あいだらが' },
+            { kanji: '值', hiragana: 'あたい' },
+            { kanji: '意気地', hiragana: 'いくじ' },
+            { kanji: '意志', hiragana: 'いし' },
+            { kanji: '意欲', hiragana: 'いよく' },
+            { kanji: '価値', hiragana: 'かち' },
+            { kanji: '悲しみ', hiragana: 'かなしみ' },
+            { kanji: '金詰り', hiragana: 'かねづまり' },
+            { kanji: '関係', hiragana: 'かんけい' },
+            { kanji: '気心', hiragana: 'きごころ' },
+            { kanji: '逆効果', hiragana: 'ぎゃくこうか' },
+            { kanji: '虚栄心', hiragana: 'きょえいしん' },
+            { kanji: '苦しみ', hiragana: 'くるしみ' },
+            { kanji: '好感', hiragana: 'こうかん' },
+            { kanji: '心構え', hiragana: 'こころがまえ' },
+            { kanji: '自尊心', hiragana: 'じそんしん' },
+            { kanji: '業', hiragana: 'ごう' },
+            { kanji: '見識', hiragana: 'けんしき' },
+            { kanji: '慎み', hiragana: 'つつしみ' },
+            { kanji: '哲学', hiragana: 'てつがく' },
+            { kanji: '当惑', hiragana: 'とうわく' },
+            { kanji: '値打ち', hiragana: 'ねうち' },
+            { kanji: '引け目', hiragana: 'ひけめ' },
+            { kanji: '誇り', hiragana: 'ほこり' },
+            { kanji: '本音', hiragana: 'ほんね' },
+            { kanji: '勘定', hiragana: 'かんじょう' },
+            { kanji: '先取', hiragana: 'さきどり' },
+            { kanji: '自覚', hiragana: 'じかく' },
+            { kanji: '試算', hiragana: 'しさん' },
+            { kanji: '想像', hiragana: 'そうぞう' },
+            { kanji: '納得', hiragana: 'なっとく' },
+            { kanji: '認識', hiragana: 'にんしき' },
+            { kanji: '丸暗記', hiragana: 'まるあんき' },
+            { kanji: '連想', hiragana: 'れんそう' },
+            { kanji: '再現', hiragana: 'さいげん' },
+            { kanji: '確立', hiragana: 'かくりつ' },
+            { kanji: '軽蔑', hiragana: 'けいべつ' },
+            { kanji: '後悔', hiragana: 'こうかい' },
+            { kanji: '信頼', hiragana: 'しんらい' },
+            { kanji: '尊重', hiragana: 'そんちょう' },
+            { kanji: '念願', hiragana: 'ねんがん' },
+            { kanji: 'ひいき', hiragana: 'ひいき' },
+            { kanji: '無視', hiragana: 'むし' },
+            { kanji: '冷笑', hiragana: 'れいしょう' },
+            { kanji: '苦笑', hiragana: 'くしょう' },
+            { kanji: '困窮', hiragana: 'こんきゅう' },
+            { kanji: '挫折', hiragana: 'ざせつ' },
+            { kanji: '絶望', hiragana: 'ぜつぼう' },
+            { kanji: '没頭', hiragana: 'ぼっとう' },
+            { kanji: '恋愛', hiragana: 'れんあい' },
+            { kanji: 'アレンジ', hiragana: 'arrange' },
+            { kanji: 'インプット', hiragana: 'あまりに' },
+            { kanji: '形成', hiragana: 'けいせい' },
+            { kanji: '限定', hiragana: 'げんてい' },
+            { kanji: '攻撃', hiragana: 'こうげき' },
+            { kanji: '構築', hiragana: 'こうちく' },
+            { kanji: '雇用', hiragana: 'こよう' },
+            { kanji: '採用', hiragana: 'さいよう' },
+            { kanji: '助言', hiragana: 'じょげん' },
+            { kanji: '請求', hiragana: 'せいきゅう' },
+            { kanji: '組織', hiragana: 'そしき' },
+            { kanji: '追跡', hiragana: 'ついせき' },
+            { kanji: '手配', hiragana: 'てはい' },
+            { kanji: '捻出', hiragana: 'ねんしゅつ' },
+            { kanji: '発揮', hiragana: 'はっき' },
+            { kanji: '保障', hiragana: 'ほしょう' },
+            { kanji: '保存', hiragana: 'ほぞん' },
+            { kanji: '無駄遣い', hiragana: 'むだづかい' },
+            { kanji: 'デビュー', hiragana: 'debut' },
+            { kanji: 'シフト', hiragana: 'shift' },
+            { kanji: '出産', hiragana: 'しゅっさん' },
+            { kanji: '体操', hiragana: 'たいそう' },
+            { kanji: '入園', hiragana: 'にゅうえん' },
+            { kanji: '入社', hiragana: 'にゆうしゃ' },
+            { kanji: '昼寝', hiragana: 'ひるね' },
+            { kanji: 'アップ', hiragana: 'up' },
+            { kanji: '拡大', hiragana: 'かくだい' },
+            { kanji: '実現', hiragana: 'じつげん' },
+            { kanji: '受診', hiragana: 'じゅしん' },
+            { kanji: '展開', hiragana: 'てんかい' },
+            { kanji: '普及', hiragana: 'ふきゅう' },
+            { kanji: '子育て', hiragana: 'こどだて' },
+            { kanji: '管轄', hiragana: 'かんかつ' },
+            { kanji: '参観', hiragana: 'さんかん' },
+            { kanji: '交際', hiragana: 'こうさい' },
+            { kanji: '所属', hiragana: 'しょぞく' },
+            { kanji: '関与', hiragana: 'かんよする' },
+            { kanji: '共存', hiragana: 'きょうぞん' },
+            { kanji: '配慮', hiragana: 'はいりょ' },
+            { kanji: '安定', hiragana: 'あんてい' },
+            { kanji: '一定', hiragana: 'いってい' },
+            { kanji: '顕在', hiragana: 'けんざい' },
+            { kanji: '高騰', hiragana: 'こうとう' },
+            { kanji: '上昇', hiragana: 'じょうしょう' },
+            { kanji: '定着', hiragana: 'ていちゃく' },
+            { kanji: '適応', hiragana: 'てきおう' },
+            { kanji: '相応', hiragana: 'そうおう' },
+            { kanji: '消滅', hiragana: 'しょうめつ' },
+            { kanji: '覗う', hiragana: 'うかがう' },
+            { kanji: '気取る', hiragana: 'けどる' },
+            { kanji: '比べる', hiragana: 'くらべる' },
+            { kanji: '心得る', hiragana: 'こころえる' },
+            { kanji: '取り違える', hiragana: 'とりちがえる' },
+            { kanji: '見下げる', hiragana: 'みさげる' },
+            { kanji: '見据える', hiragana: 'みすえる' },
+            { kanji: '認める', hiragana: 'みとめる' },
+            { kanji: '見直す', hiragana: 'みなおす' },
+            { kanji: '迷う', hiragana: 'まよう' },
+            { kanji: '憐れむ', hiragana: 'あわれむ' },
+            { kanji: '思いやる', hiragana: 'おもいやる' },
+            { kanji: '偲ぶ', hiragana: 'しのぶ' },
+            { kanji: '煮やす', hiragana: 'にやす' },
+            { kanji: '思い詰める', hiragana: 'おもいつめる' },
+            { kanji: '踏み付ける', hiragana: 'ふみつける' },
+            { kanji: '罵る', hiragana: 'ののしる' },
+            { kanji: '怒鳴り散らす', hiragana: 'どなりちらす' },
+            { kanji: '温まる', hiragana: 'あたたまる' },
+            { kanji: '狂う', hiragana: 'くるう' },
+            { kanji: '恐れる', hiragana: 'おそれる' },
+            { kanji: 'くだける', hiragana: 'くだける' },
+            { kanji: '行动、操作、处理、 单词', hiragana: '创造 读法' },
+            { kanji: 'ずらす', hiragana: 'ずらす' },
+            { kanji: '扱う', hiragana: 'あつかう' },
+            { kanji: '彩る', hiragana: 'いろどる' },
+            { kanji: '打ち出す', hiragana: 'うちだす' },
+            { kanji: '産む', hiragana: 'うむ' },
+            { kanji: '売り出す', hiragana: 'うりだす' },
+            { kanji: '贈る', hiragana: 'おくる' },
+            { kanji: '教わる', hiragana: 'おそわる' },
+            { kanji: '書き上げる', hiragana: 'かきあげる' },
+            { kanji: '絞りる', hiragana: 'しぼる' },
+            { kanji: 'しゃべりまくる', hiragana: 'しゃべりまく る' },
+            { kanji: '救う', hiragana: 'すくう' },
+            { kanji: '損なう', hiragana: 'そこなう' },
+            { kanji: '嗜む', hiragana: 'たしなむ' },
+            { kanji: '遣う', hiragana: 'つかう' },
+            { kanji: '作り出す', hiragana: 'つくりだす' },
+            { kanji: '詰め込む', hiragana: 'つめこむ' },
+            { kanji: '手放す', hiragana: 'てばなす' },
+            { kanji: '飛ばす', hiragana: 'とばす' },
+            { kanji: '投げ出す', hiragana: 'なげだす' },
+            { kanji: '乗っ取る', hiragana: 'のっとる' },
+            { kanji: '果たす', hiragana: 'はたす' },
+            { kanji: '増やす', hiragana: 'ふやす' },
+            { kanji: '振る', hiragana: 'ふる' },
+            { kanji: '掘る', hiragana: 'ほる' },
+            { kanji: '満たす', hiragana: 'みたす' },
+            { kanji: '導く', hiragana: 'みちびく' },
+            { kanji: '報う', hiragana: 'むくう' },
+            { kanji: '許す', hiragana: 'ゆるす' },
+            { kanji: '渡す', hiragana: 'わたす' },
+            { kanji: '得る', hiragana: 'える' },
+            { kanji: '抑える', hiragana: 'おさえる' },
+            { kanji: '変える', hiragana: 'かえる' },
+            { kanji: '抱える', hiragana: 'かかえる' },
+            { kanji: '傾ける', hiragana: 'かたむける' },
+            { kanji: '固める', hiragana: 'かためる' },
+            { kanji: '加える', hiragana: 'くわえる' },
+            { kanji: '込める', hiragana: 'こめる' },
+            { kanji: '占める', hiragana: 'しめる' },
+            { kanji: '積み重ねる', hiragana: 'つみかさねる' },
+            { kanji: '踏みしめる', hiragana: 'ふみしめる' },
+            { kanji: '申し出る', hiragana: 'もうしでる' },
+            { kanji: '持ち帰る', hiragana: 'もちかえる' },
+            { kanji: 'やり遂げる', hiragana: 'やりとげる' },
+            { kanji: '弾む', hiragana: 'はずむ' },
+            { kanji: '生じる', hiragana: 'じょうじる' },
+            { kanji: '添える', hiragana: 'そえる' },
+            { kanji: '現れる', hiragana: 'あらわれる' },
+            { kanji: '売り切れる', hiragana: 'うりきれる' },
+            { kanji: '落ちる', hiragana: 'おちる' },
+            { kanji: '折れる', hiragana: 'おれる' },
+            { kanji: 'かすれる', hiragana: 'かすれる' },
+            { kanji: '乗り越える', hiragana: 'のりこえる' },
+            { kanji: '免れる', hiragana: 'まぬがれる' },
+            { kanji: '納める', hiragana: 'おさめる' },
+            { kanji: '煽る', hiragana: 'あおる' },
+            { kanji: '語る', hiragana: 'かたる' },
+            { kanji: '聞き流す', hiragana: 'ききながす' },
+            { kanji: '差し出す', hiragana: 'さしだす' },
+            { kanji: '逸らす', hiragana: 'そらす' },
+            { kanji: '取り残す', hiragana: 'とりのこす' },
+            { kanji: '遠ざける', hiragana: 'とおざける' },
+            { kanji: '振り返る', hiragana: 'ふりかえる' },
+            { kanji: '応じる', hiragana: 'おうじる' },
+            { kanji: '乗り合わせる', hiragana: 'のりあわせる' },
+            { kanji: '打ち解ける', hiragana: 'うちとける' },
+            { kanji: '遮る', hiragana: 'さえぎる' },
+            { kanji: '陥る', hiragana: 'おちいる' },
+            { kanji: '及ぶ', hiragana: 'およぶ' },
+            { kanji: '重なる', hiragana: 'かさなる' },
+            { kanji: '偏る', hiragana: 'かたよる' },
+            { kanji: '黙る', hiragana: 'だまる' },
+            { kanji: '近寄る', hiragana: 'ちかよる' },
+            { kanji: '取り込む', hiragana: 'とりこむ' },
+            { kanji: '臨む', hiragana: 'のぞむ' },
+            { kanji: '広まる', hiragana: 'ひろまる' },
+            { kanji: '目立つ', hiragana: 'めだつ' },
+            { kanji: '行き交う', hiragana: 'ゆきかう' },
+            { kanji: '明け暮れる', hiragana: 'あけくれる' },
+            { kanji: '向ける', hiragana: 'むける' },
+            { kanji: 'ダイナミック', hiragana: 'dynamic' },
+            { kanji: '過度', hiragana: 'かど' },
+            { kanji: '極端', hiragana: 'きょくたん' },
+            { kanji: '高価', hiragana: 'こうか' },
+            { kanji: '高級', hiragana: 'こうきゅう' },
+            { kanji: '困難', hiragana: 'こんなん' },
+            { kanji: '些細', hiragana: 'ささい' },
+            { kanji: '上等', hiragana: 'じょうとう' },
+            { kanji: '正規', hiragana: 'せいき' },
+            { kanji: '粗末', hiragana: 'そまつ' },
+            { kanji: '多様', hiragana: 'たよう' },
+            { kanji: '程度', hiragana: 'ていど' },
+            { kanji: 'でたらめ', hiragana: 'でたらめ' },
+            { kanji: '独自', hiragana: 'どくじ' },
+            { kanji: '必須', hiragana: 'ひっす' },
+            { kanji: '不可欠', hiragana: 'ふかけつ' },
+            { kanji: '不思議', hiragana: 'ふしぎ' },
+            { kanji: '不適切', hiragana: 'ふてきせつ' },
+            { kanji: '無難', hiragana: 'ぶなん' },
+            { kanji: '無関係', hiragana: 'むかんけい' },
+            { kanji: '危うい', hiragana: 'あやうい' },
+            { kanji: '幼い', hiragana: 'おさない' },
+            { kanji: 'ひもじい', hiragana: 'ひもじい' },
+            { kanji: '貧しい', hiragana: 'まずしい' },
+            { kanji: 'みずぼらしい', hiragana: 'みずぼらしい' },
+            { kanji: 'むさくるしい', hiragana: 'むさくるしい' },
+            { kanji: '喧しい', hiragana: 'やかましい' },
+            { kanji: 'ベター', hiragana: 'better' },
+            { kanji: 'フォーマル', hiragana: 'formal' },
+            { kanji: 'スムーズ', hiragana: 'smooth' },
+            { kanji: '主', hiragana: 'おも' },
+            { kanji: '金銭的', hiragana: 'きんせんてき' },
+            { kanji: '建設的', hiragana: 'けんせつてき' },
+            { kanji: '盛ん', hiragana: 'さかん' },
+            { kanji: '象徴的', hiragana: 'しょうちょうてき' },
+            { kanji: '長期的', hiragana: 'ちょうきてき' },
+            { kanji: '直線的', hiragana: 'ちょくせんてき' },
+            { kanji: '典型的', hiragana: 'てんけいてき' },
+            { kanji: '表面的', hiragana: 'ひょうめんてき' },
+            { kanji: '閉鎖的', hiragana: 'へいさてき' },
+            { kanji: '本格的', hiragana: 'ほんかくてき' },
+            { kanji: '本質的', hiragana: 'ほんしってき' },
+            { kanji: '無闇', hiragana: 'むやみ' },
+            { kanji: '良好', hiragana: 'りょうこう' },
+            { kanji: '依然', hiragana: 'いぜん' },
+            { kanji: '殺伐', hiragana: 'さつばつ' },
+            { kanji: '親密', hiragana: 'しんみつ' },
+            { kanji: '丁重', hiragana: 'ていちょう' },
+            { kanji: '乱暴', hiragana: 'らんぼう' },
+            { kanji: 'わがまま', hiragana: 'わがまま' },
+            { kanji: '味気ない', hiragana: 'あじけない' },
+            { kanji: 'ありがたい', hiragana: 'ありがたい' },
+            { kanji: '苦しい', hiragana: 'くるしい' },
+            { kanji: '心ない', hiragana: 'こころない' },
+            { kanji: '寂しい', hiragana: 'さびしい' },
+            { kanji: '水臭い', hiragana: 'みずくさい' },
+            { kanji: '意識的', hiragana: 'いしきてき' },
+            { kanji: '自発的', hiragana: 'じはつてき' },
+            { kanji: '確固', hiragana: 'かっこ' },
+            { kanji: '鼻高々', hiragana: 'はなたかだか' },
+            { kanji: '肝心', hiragana: 'かんじん' },
+            { kanji: '愚か', hiragana: 'おろか' },
+            { kanji: 'さりげない', hiragana: 'さりげない' },
+            { kanji: 'いかに', hiragana: 'いかに' },
+            { kanji: 'いち早く', hiragana: 'いちはやく' },
+            { kanji: '今まで', hiragana: 'いままで' },
+            { kanji: '往々', hiragana: 'おうおう' },
+            { kanji: 'こつこつ', hiragana: 'こつこつ' },
+            { kanji: 'しばしば', hiragana: 'しばしば' },
+            { kanji: '徐々に', hiragana: 'じょじょに' },
+            { kanji: 'すかさず', hiragana: 'すかさず' },
+            { kanji: '時折', hiragana: 'ときおり' },
+            { kanji: 'どっしり', hiragana: 'どっしり' },
+            { kanji: '突然', hiragana: 'とつぜん' },
+            { kanji: 'のびのび', hiragana: 'のびのび' },
+            { kanji: 'ペコペコ', hiragana: 'ペコペコ' },
+            { kanji: 'まず', hiragana: 'まず' },
+            { kanji: 'やや', hiragana: 'やや' },
+            { kanji: '時に', hiragana: 'ときに' },
+            { kanji: 'イライラ', hiragana: 'いらいら' },
+            { kanji: 'べらべら', hiragana: 'べらばら' },
+            { kanji: 'あまりに', hiragana: 'あまりに' },
+            { kanji: '一概に', hiragana: 'いちがいに' },
+            { kanji: '大いに', hiragana: 'おおいに' },
+            { kanji: '大して', hiragana: 'たいして' },
+            { kanji: '全体', hiragana: 'ぜんたい' },
+            { kanji: '多少', hiragana: 'たしょう' },
+            { kanji: '思わず', hiragana: 'おもわず' },
+            { kanji: '逆に', hiragana: 'ぎゃくに' },
+            { kanji: '決して', hiragana: 'けっして' },
+            { kanji: 'つまり', hiragana: 'つまり' },
+            { kanji: 'なんとなく', hiragana: 'なんとなく' },
+            { kanji: '無理矢理', hiragana: 'むりやり' },
+            { kanji: 'もしも', hiragana: 'もしも' },
+            { kanji: '自ら', hiragana: 'みずから' },
+            { kanji: 'いいとこ取り', hiragana: 'いいとこどり' },
+            { kanji: 'とてつもない', hiragana: 'とてつもない' },
+            { kanji: '～狩り', hiragana: '~がり' },
+            { kanji: '～前', hiragana: '~まえ' },
+            { kanji: '最たる', hiragana: 'さいたる' },
+            { kanji: 'ちょっとした', hiragana: 'ちょっとした' },
+            { kanji: 'ほんの', hiragana: 'ほんの' },
+            { kanji: 'わが', hiragana: 'わが' },
+            { kanji: 'つまらない', hiragana: 'つまらない' },
+            { kanji: '否', hiragana: 'いな' }
+        ];
+
+        let currentQueue = [];
+        let reviewQueue = [];
+        let currentIndex = 0;
+        let totalReviewed = 0;
+        let correctCount = 0;
+        let answerShown = false;
+        let reviewMode = 'kanji-to-hiragana'; // 'kanji-to-hiragana', 'hiragana-to-kanji', 'mixed'
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function setMode(mode) {
+            reviewMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Restart with new mode
+            init();
+        }
+
+        function init() {
+            currentQueue = shuffleArray([...vocabulary]);
+            reviewQueue = [];
+            currentIndex = 0;
+            totalReviewed = 0;
+            correctCount = 0;
+            answerShown = false;
+            
+            document.getElementById('reviewScreen').style.display = 'block';
+            document.getElementById('completionScreen').classList.remove('active');
+            
+            updateDisplay();
+        }
+
+        function getCurrentDirection() {
+            if (reviewMode === 'mixed') {
+                return Math.random() < 0.5 ? 'kanji-to-hiragana' : 'hiragana-to-kanji';
+            }
+            return reviewMode;
+        }
+
+        function updateDisplay() {
+            if (currentIndex >= currentQueue.length) {
+                if (reviewQueue.length > 0) {
+                    currentQueue = shuffleArray([...reviewQueue]);
+                    reviewQueue = [];
+                    currentIndex = 0;
+                } else {
+                    showCompletion();
+                    return;
+                }
+            }
+
+            const word = currentQueue[currentIndex];
+            const direction = getCurrentDirection();
+            
+            // Store direction for this word
+            word._currentDirection = direction;
+            
+            if (direction === 'kanji-to-hiragana') {
+                document.getElementById('question').textContent = word.kanji;
+                document.getElementById('answer').textContent = word.hiragana;
+                document.getElementById('modeIndicator').textContent = '看汉字，说平假名';
+            } else {
+                document.getElementById('question').textContent = word.hiragana;
+                document.getElementById('answer').textContent = word.kanji;
+                document.getElementById('modeIndicator').textContent = '看平假名，说汉字';
+            }
+            
+            document.getElementById('answer').classList.add('hidden');
+            
+            document.getElementById('showButton').style.display = 'flex';
+            document.getElementById('reviewButtons').classList.remove('active');
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            answerShown = false;
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = vocabulary.length;
+            document.getElementById('currentCount').textContent = `${totalReviewed} / ${total}`;
+            document.getElementById('reviewCount').textContent = `待复习: ${reviewQueue.length}`;
+            
+            const progress = (totalReviewed / total) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showAnswer() {
+            if (answerShown) return;
+            
+            document.getElementById('answer').classList.remove('hidden');
+            document.getElementById('showButton').style.display = 'none';
+            document.getElementById('reviewButtons').classList.add('active');
+            answerShown = true;
+        }
+
+        function markKnow() {
+            if (!answerShown) return;
+            
+            totalReviewed++;
+            correctCount++;
+            currentIndex++;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = '太棒了！';
+            feedback.className = 'feedback correct';
+            
+            setTimeout(() => {
+                updateDisplay();
+            }, 500);
+        }
+
+        function markDontKnow() {
+            if (!answerShown) return;
+            
+            totalReviewed++;
+            reviewQueue.push(currentQueue[currentIndex]);
+            currentIndex++;
+            
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = '没关系，稍后再复习';
+            feedback.className = 'feedback incorrect';
+            
+            setTimeout(() => {
+                updateDisplay();
+            }, 500);
+        }
+
+        function showCompletion() {
+            document.getElementById('reviewScreen').style.display = 'none';
+            document.getElementById('completionScreen').classList.add('active');
+            
+            const accuracy = Math.round((correctCount / totalReviewed) * 100);
+            document.getElementById('completionStats').innerHTML = 
+                `完成 ${totalReviewed} 个单词<br>正确率: ${accuracy}%`;
+        }
+
+        function restart() {
+            init();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('completionScreen').classList.contains('active')) {
+                if (e.key === 'Enter') {
+                    restart();
+                }
+                return;
+            }
+
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                if (!answerShown) {
+                    showAnswer();
+                }
+            } else if (e.key === '1') {
+                if (answerShown) {
+                    markDontKnow();
+                }
+            } else if (e.key === '2') {
+                if (answerShown) {
+                    markKnow();
+                }
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
